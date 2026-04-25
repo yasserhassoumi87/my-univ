@@ -1,28 +1,55 @@
 import streamlit as st
-import os
 
-# إعداد واجهة التطبيق
-st.set_page_config(page_title="منظم المحاضرات - ياسر", layout="centered")
+# إعداد الصفحة لتظهر بشكل احترافي
+st.set_page_config(page_title="Student Hub", page_icon="🎓", layout="wide")
 
-st.title("📚 منظم المحاضرات الهندسي")
-st.write("مرحباً يا ياسر، ابدأ بتنظيم ملفاتك الدراسية هنا.")
+# تصميم CSS لجعل الواجهة تشبه التطبيقات الحقيقية (مربعات وألوان مريحة)
+st.markdown("""
+    <style>
+    .main { background-color: #f0f2f6; }
+    .stButton>button { width: 100%; border-radius: 10px; height: 3em; background-color: #4CAF50; color: white; }
+    .subject-card {
+        background-color: white; padding: 20px; border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;
+        margin-bottom: 10px; border: 1px solid #ddd;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# قائمة المواد (يمكنك تعديلها حسب موادك في هندسة العمليات)
-subjects = ["الرياضيات", "الكيمياء", "الفيزياء", "ميكانيك", "لغة إنجليزية"]
-selected_subject = st.selectbox("اختر المادة:", subjects)
+st.title("🎓 مساعد الطالب الذكي")
+st.write("نظّم محاضراتك، تمارينك، وتقارير الـ TP في مكان واحد.")
 
-# رفع الملفات
-uploaded_file = st.file_uploader(f"ارفع ملف PDF أو صورة لمحاضرة {selected_subject}", type=['pdf', 'png', 'jpg'])
+# إدارة المواد (إضافة مادة جديدة من قبل المستخدم)
+if 'subjects' not in st.session_state:
+    st.session_state.subjects = ["رياضيات", "فيزياء", "كيمياء"]
 
-if uploaded_file is not None:
-    st.success(f"تم رفع الملف: {uploaded_file.name} بنجاح!")
-    
-    # ميزة إضافة ملاحظة صوتية أو نصية
-    note = st.text_area("أضف ملاحظة سريعة على هذه المحاضرة:")
-    if st.button("حفظ الملاحظة"):
-        st.info("تم حفظ الملاحظة مع الملف.")
+new_sub = st.text_input("➕ أضف مادة جديدة (مثلاً: إعلام آلي):")
+if st.button("إضافة المادة"):
+    if new_sub and new_sub not in st.session_state.subjects:
+        st.session_state.subjects.append(new_sub)
+        st.rerun()
 
-# عرض أرشيف بسيط (تجريبي)
 st.divider()
-st.subheader("🗄️ الأرشيف الحالي")
-st.write(f"المواد المنظمة: {len(subjects)}")
+
+# عرض المواد على شكل مربعات (Layout)
+cols = st.columns(2) # تقسيم الشاشة لمربعين في كل سطر
+for i, sub in enumerate(st.session_state.subjects):
+    with cols[i % 2]:
+        st.markdown(f'<div class="subject-card"><h3>{sub}</h3></div>', unsafe_allow_html=True)
+        
+        # خيارات داخل كل مادة
+        option = st.selectbox(f"ماذا تريد أن ترفع في {sub}؟", ["اختر...", "محاضرة (Cours)", "سلسلة تمارين (TD)", "تقرير (TP)"], key=f"select_{sub}")
+        
+        if option != "اختر...":
+            uploaded_file = st.file_uploader(f"ارفع {option} لـ {sub}", type=['pdf', 'png', 'jpg'], key=f"file_{sub}_{option}")
+            
+            # ميزة الملاحظة الصوتية (تسجيل أو رفع)
+            st.write("🎤 ملاحظة صوتية:")
+            audio_file = st.file_uploader("ارفع شرحاً صوتياً للمحاضرة", type=['mp3', 'wav', 'm4a'], key=f"audio_{sub}")
+            
+            if st.button(f"حفظ في أرشيف {sub}", key=f"btn_{sub}"):
+                st.success(f"تم الحفظ بنجاح في قسم {option}!")
+
+st.divider()
+st.info("تطبيق تجريبي لتسهيل الحياة الجامعية - لا حاجة لتسجيل الدخول.")
+
