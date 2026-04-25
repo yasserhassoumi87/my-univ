@@ -1,7 +1,7 @@
 import streamlit as st
 
 # إعداد الصفحة لتظهر بشكل احترافي
-st.set_page_config(page_title="Student Hub", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="My copy book", page_icon="📚", layout="wide")
 
 # تصميم CSS لجعل الواجهة تشبه التطبيقات الحقيقية (مربعات وألوان مريحة)
 st.markdown("""
